@@ -1,21 +1,54 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import axios from '../utils/axios';
+import Loading from './Loading';
 
 const Details = () => {
-  return (
-    <div className="w-[80%] h-full p-10 pt-[5%] flex flex-col gap-5 bg-red-100 overflow-y-scroll  m-auto p-[10%]" >
-        <img
-         src="https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png" alt="" />
-    <div className='content'>
-    <h1 >Title</h1>
-    <h2>Price</h2>
-    <p>Description</p>
-    <Link to="#" className="border rounded border-blue-500 text-blue-800 px-5 py-2">Edit</Link>
-    <Link to="#" className="border rounded border-red-500 text-red-800 px-5 py-2">Delete</Link>
+  const [product, setProduct] = useState(null);
+  const { id } = useParams();
 
-    </div>
-    </div>
-  )
-}
+  const getProduct = async () => {
+    try {
+      const { data } = await axios.get(`/products/${id}`);
+      setProduct(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-export default Details
+  useEffect(() => {
+    getProduct();
+  }, [id]);
+
+  return product ? (
+    <div className="w-[70%] flex h-full justify-between item-center m-auto py-[10%]">
+      <img
+        className="object-contain h-[80%] w-[40%]"
+        src={`${product.image}`}
+        alt=""
+      />
+      <div className="content w-[90%]">
+        <h1 className="text-4xl">{product.title}</h1>
+        <h3 className="text-zinc-600 my-5">{product.category}</h3>
+        <h2 className="text-red-400 mb-3">₹ {product.price}</h2>
+        <p className="mb-[3%]">{product.description}</p>
+        <Link
+          to={`/edit/${product.id}`}
+          className="mr-5 border rounded border-blue-500 text-blue-800 px-5 py-2"
+        >
+          Edit
+        </Link>
+        <Link
+          to="#"
+          className="border rounded border-red-500 text-red-800 px-5 py-2"
+        >
+          Delete
+        </Link>
+      </div>
+    </div>
+  ) : (
+    <Loading />
+  );
+};
+
+export default Details;
